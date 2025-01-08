@@ -1,0 +1,260 @@
+"use client"
+
+import React, { useState } from 'react';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Slider } from '@/components/ui/slider';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Volume2 } from 'lucide-react';
+
+export const MiniDSPController = () => {
+  const [masterVolume, setMasterVolume] = useState(90);  // Default to 90
+  const [mute, setMute] = useState(false);
+  const [status, setStatus] = useState('');
+  const [inputSource, setInputSource] = useState('usb');  // Default to USB
+  const [isConnected, setIsConnected] = useState(false);
+  const [outputGains, setOutputGains] = useState({
+    0: 0, // Left
+    1: 0, // Right
+    2: 0  // Subwoofer
+  });
+  const [ipAddress, setIpAddress] = useState(() => {
+    return localStorage.getItem('minidsp-ip') || 'localhost:5380';
+  });
+  
+  // Base URL for the minidsp-rs HTTP daemon
+  const BASE_URL = `http://${ipAddress}`;
+  
+  // Function to handle API calls
+  const callApi = async (endpoint, method = 'GET', body = null) => {
+    try {
+      const options = {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        ...(body && { body: JSON.stringify(body) }),
+      };
+      
+      const response = await fetch(`${BASE_URL}${endpoint}`, options);
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      return await response.json();
+    } catch (error) {
+      setStatus(`Error: ${error.message}`);
+      console.error('API call failed:', error);
+      throw error;
+    }
+  };
+
+  // Function to fetch initial state
+  const fetchInitialState = async () => {
+    try {
+      // Set our preferred defaults
+      await callApi('/api/volume', 'PUT', { volume: 90 });
+      await callApi('/api/input', 'PUT', { input: 'USB' });
+
+      // Then fetch the current state
+      const volumeResponse = await callApi('/api/volume');
+      if (volumeResponse) {
+        setMasterVolume(volumeResponse.volume);
+        setMute(volumeResponse.muted);
+      }
+      
+      const inputResponse = await callApi('/api/input');
+      if (inputResponse) {
+        setInputSource(inputResponse.input.toLowerCase());
+      }
+
+      // Fetch gain for each output
+      const outputs = [0, 1, 2];
+      const gains = {};
+      for (const output of outputs) {
+        const gainResponse = await callApi(`/api/output/${output}/gain`);
+        if (gainResponse) {
+          gains[output] = gainResponse.gain;
+        }
+      }
+      setOutputGains(gains);
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  // Handle volume change
+  const handleVolumeChange = async (newValue) => {
+    setMasterVolume(newValue);
+    await callApi('/api/volume', 'PUT', { volume: newValue });
+  };
+
+  // Handle mute toggle
+  const handleMuteToggle = async () => {
+    const newMuteState = !mute;
+    setMute(newMuteState);
+    await callApi('/api/mute', 'PUT', { muted: newMuteState });
+  };
+
+  // Handle input source change
+  const handleInputChange = async (value) => {
+    setInputSource(value);
+    await callApi('/api/input', 'PUT', { input: value.toUpperCase() });
+  };
+
+  // Handle output gain change
+  const handleGainChange = async (output, value) => {
+    setOutputGains(prev => ({ ...prev, [output]: value }));
+    await callApi(`/api/output/${output}/gain`, 'PUT', { gain: value });
+  };
+
+  return (
+    <Card className="w-full max-w-xl">
+      <CardHeader>
+        <CardTitle className="flex items-center justify-between">
+          <span>MiniDSP Controller</span>
+          {isConnected && (
+            <Switch 
+              checked={!mute}
+              onCheckedChange={handleMuteToggle}
+              className="ml-4"
+            />
+          )}
+        </CardTitle>
+        <div className="mt-4">
+          <Label htmlFor="ip-address">MiniDSP IP Address</Label>
+          <div className="flex gap-2 mt-1">
+            <Input
+              id="ip-address"
+              type="text"
+              value={ipAddress}
+              onChange={(e) => {
+                setIpAddress(e.target.value);
+                localStorage.setItem('minidsp-ip', e.target.value);
+              }}
+              placeholder="Enter IP address (e.g., 192.168.0.67:5380)"
+              className="flex-1"
+            />
+            <Button 
+              onClick={async () => {
+                setStatus('');
+                try {
+                  await fetchInitialState();
+                  setIsConnected(true);
+                } catch (error) {
+                  setStatus('Failed to connect. Please check the IP address.');
+                }
+              }}
+              size="sm"
+            >
+              Connect
+            </Button>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        {isConnected ? (
+          <div className="space-y-6">
+            <div className="space-y-4">
+              <div>
+                <Label>Input Source</Label>
+                <Select value={inputSource} onValueChange={handleInputChange}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select input source" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="analog">Analog</SelectItem>
+                    <SelectItem value="toslink">TOSLINK</SelectItem>
+                    <SelectItem value="usb">USB</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label className="mb-2">Master Volume</Label>
+                <div className="flex items-center space-x-4">
+                  <Volume2 className="h-6 w-6" />
+                  <div className="flex-1">
+                    <Slider
+                      value={[masterVolume]}
+                      onValueChange={([value]) => handleVolumeChange(value)}
+                      max={100}
+                      step={1}
+                      className="w-full"
+                    />
+                  </div>
+                  <span className="w-12 text-right">{masterVolume}%</span>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <Label>Output Gains</Label>
+                <div className="grid gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-sm text-muted-foreground">Left Channel</Label>
+                    <div className="flex items-center space-x-4">
+                      <div className="flex-1">
+                        <Slider
+                          value={[outputGains[0]]}
+                          onValueChange={([value]) => handleGainChange(0, value)}
+                          min={-127}
+                          max={0}
+                          step={0.5}
+                          className="w-full"
+                        />
+                      </div>
+                      <span className="w-16 text-right">{outputGains[0]} dB</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-sm text-muted-foreground">Right Channel</Label>
+                    <div className="flex items-center space-x-4">
+                      <div className="flex-1">
+                        <Slider
+                          value={[outputGains[1]]}
+                          onValueChange={([value]) => handleGainChange(1, value)}
+                          min={-127}
+                          max={0}
+                          step={0.5}
+                          className="w-full"
+                        />
+                      </div>
+                      <span className="w-16 text-right">{outputGains[1]} dB</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-sm text-muted-foreground">Subwoofer</Label>
+                    <div className="flex items-center space-x-4">
+                      <div className="flex-1">
+                        <Slider
+                          value={[outputGains[2]]}
+                          onValueChange={([value]) => handleGainChange(2, value)}
+                          min={-127}
+                          max={0}
+                          step={0.5}
+                          className="w-full"
+                        />
+                      </div>
+                      <span className="w-16 text-right">{outputGains[2]} dB</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="text-center py-8 text-muted-foreground">
+            Please enter your MiniDSP's IP address and click Connect
+          </div>
+        )}
+        {status && (
+          <div className="text-sm text-red-500 mt-4">
+            {status}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
