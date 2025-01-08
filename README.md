@@ -1,8 +1,8 @@
 # MiniDSP Controller
 
-![MiniDSP Controller Interface](./public/interface.png)
-
 This is a simple web interface to control a MiniDSP device, built using React and based on the API of [minidsp-rs](https://github.com/mrene/minidsp-rs).
+
+![MiniDSP Controller Interface](./public/interface.png)
 
 ## Features
 - Control Master Volume, Mute, and Preset selection.
@@ -55,19 +55,14 @@ This is a simple web interface to control a MiniDSP device, built using React an
    ```bash
    docker run -p 3000:3000 lucapinello/minidsp-ui
    ```
-
+   
 2. Open your browser and navigate to:
    [http://localhost:3000](http://localhost:3000)
-
-## Screenshot
-The interface of the MiniDSP Controller:
-
-![MiniDSP Controller Interface](./public/interface.png)
 
 ## Acknowledgments
 - This project is based on the API of [minidsp-rs](https://github.com/mrene/minidsp-rs).
 - Built with [Next.js](https://nextjs.org/).
 
 ## License
-[MIT](./LICENSE)
+[Affero](./LICENSE)
 
