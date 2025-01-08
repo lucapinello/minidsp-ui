@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# MiniDSP Controller
 
-## Getting Started
+![MiniDSP Controller Interface](./public/interface.png)
 
-First, run the development server:
+This is a simple web interface to control a MiniDSP device, built using React and based on the API of [minidsp-rs](https://github.com/mrene/minidsp-rs).
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Features
+- Control Master Volume, Mute, and Preset selection.
+- Adjust output gains for left, right, and subwoofer channels.
+- Enable or disable Dirac Live processing.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Installation and Usage
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+### Option 1: Run Locally
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+#### Prerequisites
+- Node.js (v18 or later recommended)
+- npm, yarn, or pnpm installed
 
-## Learn More
+#### Steps
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/minidsp-ui.git
+   cd minidsp-ui
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+2. Install dependencies:
+   ```bash
+   npm install
+   # or
+   yarn install
+   # or
+   pnpm install
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. Start the development server:
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   # or
+   pnpm dev
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+4. Open your browser and navigate to:
+   [http://localhost:3000](http://localhost:3000)
 
-## Deploy on Vercel
+### Option 2: Use Docker
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+#### Prerequisites
+- Docker installed on your machine
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+#### Steps
+1. Run the container:
+   ```bash
+   docker run -p 3000:3000 lucapinello/minidsp-ui
+   ```
+
+2. Open your browser and navigate to:
+   [http://localhost:3000](http://localhost:3000)
+
+## Screenshot
+The interface of the MiniDSP Controller:
+
+![MiniDSP Controller Interface](./public/interface.png)
+
+## Acknowledgments
+- This project is based on the API of [minidsp-rs](https://github.com/mrene/minidsp-rs).
+- Built with [Next.js](https://nextjs.org/).
+
+## License
+[MIT](./LICENSE)
+
