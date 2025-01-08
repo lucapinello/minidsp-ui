@@ -2,7 +2,7 @@
 
 This is a simple web interface to control a MiniDSP device, built using React and based on the API of [minidsp-rs](https://github.com/mrene/minidsp-rs).
 
-![MiniDSP Controller Interface](./public/interface.png)
+<img src="./public/interface.png" alt="MiniDSP Controller Interface" width="600">
 
 ## Features
 - Control Master Volume, Mute, and Preset selection.
