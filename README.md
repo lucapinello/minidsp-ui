@@ -20,7 +20,7 @@ This is a simple web interface to control a MiniDSP device, built using React an
 #### Steps
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/minidsp-ui.git
+   git clone https://github.com/lucapinello/minidsp-ui.git
    cd minidsp-ui
    ```
 
