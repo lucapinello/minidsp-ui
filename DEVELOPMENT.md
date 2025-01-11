@@ -31,6 +31,14 @@ This document contains information for developers who want to contribute to or b
 
 ## Docker Development
 
+### Configuration
+
+By default, images are pushed to `lucapinello/minidsp-ui`. To use your own repository, create a `docker-repo.config` file:
+
+```bash
+echo "yourdockerhub" > docker-repo.config
+```
+
 ### Local Docker Build
 
 Build for your current architecture:
@@ -79,6 +87,35 @@ cp docker-compose.example.yml docker-compose.yml
 ```bash
 docker-compose up --build
 ```
+
+## Continuous Integration & Deployment
+
+### Automated Builds
+
+The project uses GitHub Actions for CI/CD:
+
+1. **CI Pipeline** (on every push/PR):
+   - Runs tests
+   - On main branch:
+     - Builds multi-arch Docker image
+     - Pushes development tags (`dev` and `dev-{commit-sha}`)
+
+2. **Release Pipeline** (manual trigger):
+   - Builds multi-arch Docker image
+   - Pushes release tags (`latest` and version number)
+   - Creates GitHub Release
+
+### Creating a Release
+
+1. Go to the "Actions" tab in GitHub
+2. Select the "Release" workflow
+3. Click "Run workflow"
+4. Enter the version number (e.g., v1.0.0)
+5. Click "Run workflow"
+
+This will:
+- Build and push Docker images with appropriate tags
+- Create a GitHub release with auto-generated notes
 
 ## Project Structure
 

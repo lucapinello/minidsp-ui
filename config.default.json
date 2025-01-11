@@ -1,0 +1,8 @@
+{
+  "docker": {
+    "image": {
+      "repository": "lucapinello",
+      "name": "minidsp-ui"
+    }
+  }
+} 
