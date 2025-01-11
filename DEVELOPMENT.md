@@ -29,6 +29,27 @@ This document contains information for developers who want to contribute to or b
    npm run dev
    ```
 
+### Verification
+
+To verify your changes before submitting:
+```bash
+./verify.sh
+```
+
+This will:
+1. Install dependencies
+2. Run linting (warnings only)
+3. Run tests
+4. Build the project
+
+You can also run individual checks:
+```bash
+npm run lint    # Check code style (warnings only)
+npm run test    # Run tests
+npm run build   # Build the project
+npm run verify  # Run all checks
+```
+
 ## Docker Development
 
 ### Configuration
@@ -95,7 +116,8 @@ docker-compose up --build
 The project uses GitHub Actions for CI/CD:
 
 1. **CI Pipeline** (on every push/PR):
-   - Runs tests
+   - Runs linting checks
+   - Builds the project
    - On main branch:
      - Builds multi-arch Docker image
      - Pushes development tags (`dev` and `dev-{commit-sha}`)
