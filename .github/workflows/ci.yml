@@ -32,6 +32,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
+      - name: Read config
+        id: config
+        run: |
+          REPO=$(jq -r '.docker.repository' config.default.json)
+          echo "repository=${REPO}" >> $GITHUB_OUTPUT
+      
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         
@@ -48,5 +54,5 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            lucapinello/minidsp-ui:dev
-            lucapinello/minidsp-ui:dev-${{ github.sha }} 
+            ${{ steps.config.outputs.repository }}/minidsp-ui:dev
+            ${{ steps.config.outputs.repository }}/minidsp-ui:dev-${{ github.sha }} 
