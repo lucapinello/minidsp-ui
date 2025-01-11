@@ -417,7 +417,7 @@ return (
           </div>
         ) : (
           <div className="text-center py-8 text-muted-foreground">
-            Please enter your MiniDSP's IP address and click Connect
+            Please enter your MiniDSP&apos;s IP address and click Connect
           </div>
         )}
         {status && (
