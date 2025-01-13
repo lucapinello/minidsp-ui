@@ -4,17 +4,55 @@ on:
   workflow_call:  # This makes the workflow reusable
 
 jobs:
-  verify:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'npm'
-          
+      - run: npm ci
+      - run: npm run lint
+
+  unit-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm test
+
+  e2e-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      - name: Cache Playwright browsers
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+      - run: npm ci
+      - run: npx playwright test
+
+  build:
+    needs: [lint, unit-test, e2e-test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
       - name: Cache Next.js build
         uses: actions/cache@v3
         with:
@@ -24,21 +62,5 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
             ${{ runner.os }}-nextjs-
-          
-      - name: Install dependencies
-        run: npm ci
-        
-      - name: Lint
-        run: npm run lint
-        
-      - name: Run unit tests
-        run: npm test
-        
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps
-        
-      - name: Run E2E tests
-        run: npx playwright test
-        
-      - name: Build
-        run: npm run build 
+      - run: npm ci
+      - run: npm run build 
