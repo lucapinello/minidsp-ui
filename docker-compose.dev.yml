@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  minidsp-ui:
+    build: 
+      context: .
+      target: development
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_USE_MOCK_MINIDSP=true
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run dev 

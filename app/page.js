@@ -1,5 +1,5 @@
 "use client";
-import MiniDSPController from '@/components/minidsp-controller';
+import { MiniDSPController } from '@/components/minidsp-controller';
 import Head from 'next/head';
 
 export default function Home() {

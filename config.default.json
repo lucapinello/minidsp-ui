@@ -1,0 +1,8 @@
+{
+  "docker": {
+    "repository": "lucapinello"
+  },
+  "minidsp": {
+    "api_url": "http://minidsp-rs:5380"
+  }
+} 

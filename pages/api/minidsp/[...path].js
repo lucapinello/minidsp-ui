@@ -1,14 +1,49 @@
+import { mockMinidsp } from '@/lib/mock-minidsp';
+
 export default async function handler(req, res) {
   const { path } = req.query;
   const ipAddress = req.headers['minidsp-ip'];
+  const isMockMode = process.env.NEXT_PUBLIC_USE_MOCK_MINIDSP === 'true';
+  
+  console.log('API Request:', { 
+    path, 
+    ipAddress, 
+    isMockMode, 
+    env: process.env.NEXT_PUBLIC_USE_MOCK_MINIDSP,
+    method: req.method,
+    body: req.body,
+    headers: req.headers
+  });
   
   if (!ipAddress) {
+    console.log('No IP address provided in headers');
     res.status(400).json({ error: 'No IP address provided' });
     return;
   }
 
   try {
-    // Remove any '/api/' prefix from the path if present
+    // Use mock if NEXT_PUBLIC_USE_MOCK_MINIDSP is set or if hostname is minidsp-mock
+    if (isMockMode || ipAddress.includes('minidsp-mock')) {
+      console.log('Using mock implementation for path:', path);
+      const cleanPath = path.filter(segment => segment !== 'api').join('/');
+      
+      let response;
+      // Route to appropriate mock function
+      if (cleanPath === 'devices') {
+        response = mockMinidsp.getDevices();
+      } else if (cleanPath === 'devices/0') {
+        response = mockMinidsp.getDeviceStatus();
+      } else if (cleanPath === 'devices/0/config' && req.method === 'POST') {
+        response = mockMinidsp.updateConfig(req.body);
+      } else {
+        throw new Error(`Unknown mock endpoint: ${cleanPath}`);
+      }
+      
+      return res.status(200).json(response);
+    }
+
+    // Real minidsp-rs proxy code
+    console.log('Using real implementation');
     const cleanPath = path.filter(segment => segment !== 'api').join('/');
     const url = `http://${ipAddress}/${cleanPath}`;
     
@@ -42,7 +77,7 @@ export default async function handler(req, res) {
       res.status(response.status).json({ success: true, text });
     }
   } catch (error) {
-    console.error('Proxy error:', error);
+    console.error('API error:', error);
     res.status(500).json({ error: error.message });
   }
 }
