@@ -1,6 +1,32 @@
 {
   "extends": "next/core-web-vitals",
   "rules": {
-    "react/no-unescaped-entities": "warn"
-  }
+    "react/no-unescaped-entities": "warn",
+    "max-lines": ["warn", {
+      "max": 500,
+      "skipBlankLines": true,
+      "skipComments": true
+    }],
+    "max-lines-per-function": ["warn", {
+      "max": 200,
+      "skipBlankLines": true,
+      "skipComments": true,
+      "IIFEs": true
+    }],
+    "complexity": ["warn", 15],
+    "max-depth": ["warn", 3],
+    "max-nested-callbacks": ["warn", 3]
+  },
+  "overrides": [
+    {
+      "files": ["**/pages/api/**/*.js"],
+      "rules": {
+        "max-lines-per-function": ["warn", {
+          "max": 100,
+          "skipBlankLines": true,
+          "skipComments": true
+        }]
+      }
+    }
+  ]
 } 
