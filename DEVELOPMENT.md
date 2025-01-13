@@ -169,3 +169,10 @@ const savedUrl = getConfig('minidsp.api_url', 'minidsp-ip');
 - Add type annotations
 - Use reasonable ESLint rules to enforce code style
 - Always use `git mv` to rename files, or `git rm` to delete files
+- Follow established patterns in the codebase, e.g. the test setup, including e2e tests
+
+## Useful LLM prompts
+
+- Get familiar with the codebase by and read the README.md and DEVELOPMENT.md files and the directory tree
+- Run our of verification script ./verify.sh, and only fix things related to what we changed
+- Write the commit message for me, based on the current changes made. Check the git diff cat if you need to.

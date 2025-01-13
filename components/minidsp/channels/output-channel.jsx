@@ -19,7 +19,7 @@ export const OutputChannel = ({
   testId
 }) => {
   return (
-    <div className="border rounded-lg p-4 flex flex-col h-[400px]">
+    <div className="border rounded-lg p-4 flex flex-col h-[400px]" data-testid={`output-${label}`}>
       <div className="text-base font-medium mb-4">{label}</div>
       
       {/* Meter section */}
@@ -58,6 +58,7 @@ export const OutputChannel = ({
           </Label>
           <Slider
             id={`${label}-delay`}
+            data-testid={`output-${label}-delay`}
             value={[delay ?? 0]}
             onValueChange={([value]) => onDelayChange(validateDelay(value))}
             min={0}
@@ -74,12 +75,14 @@ export const OutputChannel = ({
           <Button
             variant="secondary"
             onClick={() => onMuteChange(!mute)}
+            data-testid={`output-${label}-mute`}
           >
             {mute ? "Unmute" : "Mute"}
           </Button>
           <Button
             variant="secondary"
             onClick={() => onInvertedChange(!inverted)}
+            data-testid={`output-${label}-invert`}
           >
             {inverted ? "Normal" : "Invert"}
           </Button>

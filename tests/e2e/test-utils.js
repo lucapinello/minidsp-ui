@@ -10,6 +10,22 @@ async function checkForRuntimeErrors(page) {
   }
 }
 
+export async function setupMockMinidsp(page) {
+  // Wait for the page to be ready
+  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('domcontentloaded');
+
+  // Enter mock hostname and connect
+  await page.getByTestId('hostname-input').fill('mock');
+  await page.getByTestId('connect-button').click();
+
+  // Wait for connection to be established
+  await page.waitForFunction(() => {
+    const status = window.mockMinidsp?.getDeviceStatus();
+    return status && status.master;
+  });
+}
+
 export const test = base.extend({
   page: async ({ page }, use) => {
     const errors = [];
