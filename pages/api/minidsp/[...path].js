@@ -3,6 +3,9 @@ import { mockMinidsp } from '@/lib/mock-minidsp';
 export default async function handler(req, res) {
   const { path } = req.query;
   const ipAddress = req.headers['minidsp-ip'];
+  const isMockMode = process.env.NEXT_PUBLIC_USE_MOCK_MINIDSP === 'true';
+  
+  console.log('API Request:', { path, ipAddress, isMockMode, env: process.env.NEXT_PUBLIC_USE_MOCK_MINIDSP });
   
   if (!ipAddress) {
     res.status(400).json({ error: 'No IP address provided' });
@@ -11,7 +14,8 @@ export default async function handler(req, res) {
 
   try {
     // Use mock if NEXT_PUBLIC_USE_MOCK_MINIDSP is set
-    if (process.env.NEXT_PUBLIC_USE_MOCK_MINIDSP === 'true') {
+    if (isMockMode) {
+      console.log('Using mock implementation');
       const cleanPath = path.filter(segment => segment !== 'api').join('/');
       
       // Route to appropriate mock function
@@ -29,6 +33,7 @@ export default async function handler(req, res) {
     }
 
     // Real minidsp-rs proxy code
+    console.log('Using real implementation');
     const cleanPath = path.filter(segment => segment !== 'api').join('/');
     const url = `http://${ipAddress}/${cleanPath}`;
     
@@ -62,7 +67,7 @@ export default async function handler(req, res) {
       res.status(response.status).json({ success: true, text });
     }
   } catch (error) {
-    console.error('Proxy error:', error);
+    console.error('API error:', error);
     res.status(500).json({ error: error.message });
   }
 }

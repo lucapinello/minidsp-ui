@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -13,6 +13,21 @@ import { cn } from "@/lib/utils";
 import { getConfig } from '@/lib/config';
 
 export default function MiniDSPController() {
+  const isMockMode = process.env.NEXT_PUBLIC_USE_MOCK_MINIDSP === 'true';
+  
+  // Log environment setup once on mount
+  useEffect(() => {
+    console.log('Environment setup:', {
+      NEXT_PUBLIC_USE_MOCK_MINIDSP: process.env.NEXT_PUBLIC_USE_MOCK_MINIDSP,
+      isMockMode,
+      defaultHost: isMockMode ? 'minidsp-mock:5380' : (getConfig('minidsp.api_url', 'minidsp-host') || '192.168.0.67:5380')
+    });
+  }, []);
+  
+  const defaultHost = isMockMode 
+    ? 'minidsp-mock:5380'  // Mock mode - fixed value
+    : (getConfig('minidsp.api_url', 'minidsp-host') || '192.168.0.67:5380');
+  
   const [masterVolume, setMasterVolume] = useState(-10);  // Default to -10 dB
   const [mute, setMute] = useState(false);
   const [status, setStatus] = useState('');
@@ -45,16 +60,16 @@ export default function MiniDSPController() {
       2: -20   // Subwoofer - default to -20 dB
     };
   });
-  const [ipAddress, setIpAddress] = useState(() => 
-    getConfig('minidsp.api_url', 'minidsp-ip') || '192.168.0.67:5380'
-  );
+  const [hostname, setHostname] = useState(defaultHost);
 
-useEffect(() => {
-    const savedIp = window.localStorage.getItem('minidsp-ip');
-    if (savedIp) {
-      setIpAddress(savedIp);
+  useEffect(() => {
+    if (!isMockMode) {
+      const savedHost = window.localStorage.getItem('minidsp-host');
+      if (savedHost) {
+        setHostname(savedHost);
+      }
     }
-  }, []);
+  }, [isMockMode]);
   
   const callApi = async (endpoint, method = 'GET', body = null) => {
     try {
@@ -62,7 +77,7 @@ useEffect(() => {
         method,
         headers: {
           'Content-Type': 'application/json',
-          'minidsp-ip': ipAddress,
+          'minidsp-ip': hostname,
         },
         ...(body && { body: JSON.stringify(body) }),
       };
@@ -97,14 +112,11 @@ useEffect(() => {
   const fetchInitialState = async () => {
     try {
       const devices = await callApi('devices');
-      console.log('Available devices:', devices);
-      
       if (!devices || devices.length === 0) {
         throw new Error('No devices found');
       }
 
       const deviceStatus = await callApi('devices/0');
-      console.log('Device status:', deviceStatus);
       setLastStatus(deviceStatus);
 
       if (deviceStatus) {
@@ -236,17 +248,19 @@ return (
           <span>MiniDSP Controller</span>
         </CardTitle>
         <div className="mt-4">
-          <Label htmlFor="ip-address">MiniDSP IP Address</Label>
+          <Label htmlFor="minidsp-host">MiniDSP Host</Label>
           <div className="flex gap-2 mt-1">
             <Input
-              id="ip-address"
+              id="minidsp-host"
               type="text"
-              value={ipAddress}
+              value={hostname}
               onChange={(e) => {
-                setIpAddress(e.target.value);
-                localStorage.setItem('minidsp-ip', e.target.value);
+                setHostname(e.target.value);
+                if (!isMockMode) {
+                  localStorage.setItem('minidsp-host', e.target.value);
+                }
               }}
-              placeholder="Enter IP address (e.g., 192.168.0.67:5380)"
+              placeholder={isMockMode ? "Development mock mode - any value works" : "Enter hostname or IP (e.g., minidsp.local:5380)"}
               className="flex-1"
             />
             <Button 
@@ -256,7 +270,7 @@ return (
                   await fetchInitialState();
                   setIsConnected(true);
                 } catch (error) {
-                  setStatus('Failed to connect. Please check the IP address.');
+                  setStatus('Failed to connect. Please check the hostname/IP.');
                 }
               }}
               size="sm"
@@ -264,6 +278,11 @@ return (
               Connect
             </Button>
           </div>
+          {isMockMode && (
+            <div className="text-sm text-muted-foreground mt-2">
+              Running in development mock mode. Any hostname will work - just click Connect.
+            </div>
+          )}
         </div>
       </CardHeader>
       <CardContent>
@@ -429,6 +448,10 @@ return (
           </div>
         )}
       </CardContent>
+      <CardFooter className="text-sm text-muted-foreground">
+        Mode: {isMockMode ? 'Development (Mock)' : 'Production'} 
+        {isMockMode && ' - No real MiniDSP device required'}
+      </CardFooter>
     </Card>
   );
 }
