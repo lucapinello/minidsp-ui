@@ -3,12 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
+    "dev:mock": "NEXT_PUBLIC_USE_MOCK_MINIDSP=true next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint --max-warnings 999",
     "test": "jest",
-    "verify": "npm run lint && npm run test && npm run build"
+    "verify": "npm run lint && npm run test && npx playwright test && npm run build"
   },
   "dependencies": {
     "@radix-ui/react-label": "^2.1.1",
@@ -26,6 +27,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@playwright/test": "^1.49.1",
     "@shadcn/ui": "^0.0.4",
     "@testing-library/jest-dom": "^6.4.2",
     "@testing-library/react": "^14.2.1",
@@ -36,14 +38,5 @@
     "jest-environment-jsdom": "^29.7.0",
     "postcss": "^8",
     "tailwindcss": "^3.4.1"
-  },
-  "jest": {
-    "testEnvironment": "jsdom",
-    "setupFilesAfterEnv": [
-      "@testing-library/jest-dom"
-    ],
-    "testMatch": [
-      "**/__tests__/**/*.test.js"
-    ]
   }
 }

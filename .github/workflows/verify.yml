@@ -29,4 +29,16 @@ jobs:
         run: npm ci
         
       - name: Lint
-        run: npm run lint 
+        run: npm run lint
+        
+      - name: Run unit tests
+        run: npm test
+        
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+        
+      - name: Run E2E tests
+        run: npx playwright test
+        
+      - name: Build
+        run: npm run build 
