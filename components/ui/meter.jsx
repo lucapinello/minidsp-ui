@@ -1,6 +1,8 @@
 import { cn } from "@/lib/utils";
 import { useEffect, useRef, useState } from "react";
 
+const PEAK_HOLD_TIME = 2000; // Hold peak for 2 seconds
+
 export const Meter = ({ 
   rmsLevel = -60,
   peakLevel = -60,
@@ -9,6 +11,7 @@ export const Meter = ({
   height = 120
 }) => {
   const [peakHold, setPeakHold] = useState(peakLevel);
+  const [peakHoldTimeout, setPeakHoldTimeout] = useState(0);
   
   // Convert dB to percentage (0 to 100)
   const dbToPercent = (db) => {
@@ -22,13 +25,12 @@ export const Meter = ({
   useEffect(() => {
     if (peakLevel > peakHold) {
       setPeakHold(peakLevel);
-    } else {
-      const timer = setTimeout(() => {
-        setPeakHold(peakLevel);
-      }, 2000);
-      return () => clearTimeout(timer);
+      const timeout = Date.now() + PEAK_HOLD_TIME;
+      setPeakHoldTimeout(timeout);
+    } else if (Date.now() > peakHoldTimeout) {
+      setPeakHold(peakLevel);
     }
-  }, [peakLevel]);
+  }, [peakLevel, peakHold, peakHoldTimeout]);
 
   return (
     <div className="border border-gray-300 dark:border-gray-700 rounded-lg p-2" data-testid={testId}>

@@ -9,8 +9,6 @@ test.describe('Channel visibility', () => {
     // Check input channels are visible
     const input1Gain = page.locator('[data-testid="input-Input 1-gain"]');
     const input2Gain = page.locator('[data-testid="input-Input 2-gain"]');
-    await input1Gain.waitFor({ state: 'attached', timeout: 15000 });
-    await input2Gain.waitFor({ state: 'attached', timeout: 15000 });
     await expect(input1Gain).toBeVisible();
     await expect(input2Gain).toBeVisible();
   });
@@ -23,7 +21,6 @@ test.describe('Channel visibility', () => {
     // Check output channels are visible
     for (let i = 1; i <= 4; i++) {
       const outputGain = page.locator(`[data-testid="output-Output ${i}-gain"]`);
-      await outputGain.waitFor({ state: 'attached', timeout: 15000 });
       await expect(outputGain).toBeVisible();
     }
   });

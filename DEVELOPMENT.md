@@ -168,3 +168,4 @@ const savedUrl = getConfig('minidsp.api_url', 'minidsp-ip');
 - Add comments to explain why behind the code when it's not obvious
 - Add type annotations
 - Use reasonable ESLint rules to enforce code style
+- Always use `git mv` to rename files, or `git rm` to delete files

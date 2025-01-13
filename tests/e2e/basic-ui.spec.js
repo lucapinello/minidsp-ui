@@ -5,7 +5,6 @@ test.describe('Basic UI elements', () => {
     // The test-utils already check for error overlays on page load
     // Let's also check after a brief wait to catch any async errors
     await page.waitForTimeout(1000);
-    
     const errorOverlay = page.locator('[data-nextjs-dialog-left-right]');
     await expect(errorOverlay).not.toBeVisible();
   });
