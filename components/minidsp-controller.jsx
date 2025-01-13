@@ -2,11 +2,9 @@
 
 import React from 'react';
 import { useMinidsp } from '@/lib/hooks/use-minidsp';
-import { ConnectionHeader } from '@/components/minidsp/connection-header';
-import { MasterControls } from '@/components/minidsp/master-controls';
-import { VolumeControls } from '@/components/minidsp/volume-controls';
-import { InputChannel } from '@/components/minidsp/input-channel';
-import { OutputChannel } from '@/components/minidsp/output-channel';
+import { ConnectionHeader } from '@/components/minidsp/connection';
+import { MasterControls, VolumeControls } from '@/components/minidsp/controls';
+import { InputChannel, OutputChannel } from '@/components/minidsp/channels';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 
 export function MiniDSPController() {
