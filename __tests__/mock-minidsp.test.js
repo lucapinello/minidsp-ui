@@ -3,13 +3,13 @@ import { mockMinidsp } from '@/lib/mock-minidsp';
 describe('Mock MiniDSP', () => {
   it('should list available devices', () => {
     const devices = mockMinidsp.getDevices();
-    expect(devices).toEqual([{ id: 0, name: 'Mock MiniDSP' }]);
+    expect(devices).toEqual([{ id: 0, name: 'Mock MiniDSP 2x4 HD' }]);
   });
 
   it('should get device status', () => {
     const status = mockMinidsp.getDeviceStatus();
     expect(status.master).toBeDefined();
-    expect(status.outputs).toHaveLength(3);
+    expect(status.outputs).toHaveLength(4);
   });
 
   it('should update master volume', () => {
@@ -50,5 +50,48 @@ describe('Mock MiniDSP', () => {
 
     const status = mockMinidsp.getDeviceStatus();
     expect(status.master.dirac).toBe(true);
+  });
+
+  it('should update input mute state', () => {
+    mockMinidsp.updateConfig({
+      inputs: [{ index: 0, mute: true }]
+    });
+
+    const status = mockMinidsp.getDeviceStatus();
+    expect(status.inputs[0].mute).toBe(true);
+  });
+
+  it('should update output mute state', () => {
+    mockMinidsp.updateConfig({
+      outputs: [{ index: 0, mute: true }]
+    });
+
+    const status = mockMinidsp.getDeviceStatus();
+    expect(status.outputs[0].mute).toBe(true);
+  });
+
+  it('should update output invert state', () => {
+    mockMinidsp.updateConfig({
+      outputs: [{ index: 0, inverted: true }]
+    });
+
+    const status = mockMinidsp.getDeviceStatus();
+    expect(status.outputs[0].inverted).toBe(true);
+  });
+
+  it('should handle multiple state updates for an output', () => {
+    mockMinidsp.updateConfig({
+      outputs: [{ 
+        index: 0, 
+        mute: true,
+        inverted: true,
+        gain: -20
+      }]
+    });
+
+    const status = mockMinidsp.getDeviceStatus();
+    expect(status.outputs[0].mute).toBe(true);
+    expect(status.outputs[0].inverted).toBe(true);
+    expect(status.outputs[0].gain).toBe(-20);
   });
 }); 

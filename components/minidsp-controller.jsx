@@ -12,6 +12,117 @@ import { Volume2 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { getConfig } from '@/lib/config';
 
+const ChannelController = ({ label, gain, onGainChange }) => {
+  return (
+    <div className="space-y-2">
+      <Label className="text-sm text-muted-foreground">{label}</Label>
+      <div className="flex items-center space-x-4">
+        <div className="flex-1">
+          <Slider
+            value={[gain ?? -127]}
+            onValueChange={([value]) => onGainChange(Math.min(0, Math.max(-127, value)))}
+            min={-127}
+            max={0}
+            step={0.5}
+            className="w-full bg-blue-50"
+            dir="ltr"
+          />
+        </div>
+        <span className="w-16 text-right">{(gain ?? -127).toFixed(1)} dB</span>
+      </div>
+    </div>
+  );
+};
+
+const InputChannel = ({ label, gain, mute, onGainChange, onMuteChange }) => {
+  return (
+    <div className="space-y-2 p-4 border rounded-lg">
+      <div className="flex justify-between items-center">
+        <Label className="text-lg font-semibold">{label}</Label>
+        <Button 
+          variant={mute ? "destructive" : "secondary"}
+          size="sm"
+          onClick={() => onMuteChange(!mute)}
+        >
+          {mute ? "Muted" : "Mute"}
+        </Button>
+      </div>
+      <div className="space-y-4">
+        <div>
+          <div className="flex justify-between mb-2">
+            <Label className="text-sm text-muted-foreground">Gain</Label>
+            <span className="text-sm">{gain.toFixed(1)} dB</span>
+          </div>
+          <Slider
+            value={[gain]}
+            onValueChange={([value]) => onGainChange(Math.min(0, Math.max(-127, value)))}
+            min={-127}
+            max={0}
+            step={0.5}
+            className="w-full bg-blue-50"
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const OutputChannel = ({ label, gain, delay, inverted, mute, onGainChange, onDelayChange, onInvertedChange, onMuteChange }) => {
+  return (
+    <div className="space-y-2 p-4 border rounded-lg">
+      <div className="flex justify-between items-center">
+        <Label className="text-lg font-semibold">{label}</Label>
+        <div className="space-x-2">
+          <Button 
+            variant={inverted ? "default" : "secondary"}
+            size="sm"
+            onClick={() => onInvertedChange(!inverted)}
+          >
+            {inverted ? "Inverted" : "Invert"}
+          </Button>
+          <Button 
+            variant={mute ? "destructive" : "secondary"}
+            size="sm"
+            onClick={() => onMuteChange(!mute)}
+          >
+            {mute ? "Muted" : "Mute"}
+          </Button>
+        </div>
+      </div>
+      <div className="space-y-4">
+        <div>
+          <div className="flex justify-between mb-2">
+            <Label className="text-sm text-muted-foreground">Gain</Label>
+            <span className="text-sm">{gain.toFixed(1)} dB</span>
+          </div>
+          <Slider
+            value={[gain]}
+            onValueChange={([value]) => onGainChange(Math.min(0, Math.max(-127, value)))}
+            min={-127}
+            max={0}
+            step={0.5}
+            className="w-full bg-blue-50"
+          />
+        </div>
+        <div>
+          <div className="flex justify-between mb-2">
+            <Label className="text-sm text-muted-foreground">Delay</Label>
+            <span className="text-sm">{delay.toFixed(1)} ms</span>
+          </div>
+          <Slider
+            value={[delay]}
+            onValueChange={([value]) => onDelayChange(value)}
+            min={0}
+            max={100}
+            step={0.1}
+            className="w-full bg-blue-50"
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function MiniDSPController() {
   const isMockMode = process.env.NEXT_PUBLIC_USE_MOCK_MINIDSP === 'true';
   
@@ -55,19 +166,17 @@ export default function MiniDSPController() {
       }
     }
     return {
-      0: 0,    // Left - default to 0 dB
-      1: 0,    // Right - default to 0 dB
-      2: -20   // Subwoofer - default to -20 dB
+      0: -10,    // Output 1 (Mono)
+      1: -10,    // Output 2 (Mono)
+      2: -10,    // Output 3 (Mono)
+      3: -10     // Output 4 (Mono)
     };
   });
   const [hostname, setHostname] = useState(defaultHost);
 
   useEffect(() => {
-    if (!isMockMode) {
-      const savedHost = window.localStorage.getItem('minidsp-host');
-      if (savedHost) {
-        setHostname(savedHost);
-      }
+    if (isMockMode) {
+      setHostname('minidsp-mock:5380');
     }
   }, [isMockMode]);
   
@@ -241,7 +350,72 @@ export default function MiniDSPController() {
     }
   };
 
-return (
+  const handleInputGainChange = async (index, value) => {
+    try {
+      await callApi('devices/0/config', 'POST', {
+        inputs: [{
+          index,
+          gain: value
+        }]
+      });
+    } catch (error) {
+      console.error('Failed to update input gain:', error);
+    }
+  };
+
+  const handleInputMuteChange = async (index, value) => {
+    try {
+      await updateConfig({
+        inputs: [{
+          index,
+          mute: value
+        }]
+      });
+    } catch (error) {
+      console.error('Failed to update input mute:', error);
+    }
+  };
+
+  const handleOutputDelayChange = async (index, value) => {
+    try {
+      await updateConfig({
+        outputs: [{
+          index,
+          delay: value
+        }]
+      });
+    } catch (error) {
+      console.error('Failed to update output delay:', error);
+    }
+  };
+
+  const handleOutputInvertedChange = async (index, value) => {
+    try {
+      await updateConfig({
+        outputs: [{
+          index,
+          inverted: value
+        }]
+      });
+    } catch (error) {
+      console.error('Failed to update output invert:', error);
+    }
+  };
+
+  const handleOutputMuteChange = async (index, value) => {
+    try {
+      await updateConfig({
+        outputs: [{
+          index,
+          mute: value
+        }]
+      });
+    } catch (error) {
+      console.error('Failed to update output mute:', error);
+    }
+  };
+
+  return (
     <Card className="w-full max-w-xl">
       <CardHeader>
         <CardTitle>
@@ -287,12 +461,12 @@ return (
       </CardHeader>
       <CardContent>
         {isConnected ? (
-          <div className="space-y-6">
+          <div className="space-y-8">
             <div className="space-y-4">
-            <div>
+              <div>
                 <Label>Input Source</Label>
                 <Select value={inputSource} onValueChange={handleInputChange}>
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger className="w-full hover:border-blue-200 transition-colors">
                     <SelectValue placeholder="Select input source" />
                   </SelectTrigger>
                   <SelectContent className="bg-white">
@@ -303,12 +477,11 @@ return (
                 </Select>
               </div>
 
-              {/* Add this section right after Input Source and before Master Volume */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex items-center justify-between mb-2 gap-4">
                   <Label>Preset: </Label>
                   <Select value={currentPreset.toString()} onValueChange={handlePresetChange}>
-                    <SelectTrigger className="w-full">
+                    <SelectTrigger className="w-full hover:border-blue-200 transition-colors">
                       <SelectValue placeholder="Select preset" />
                     </SelectTrigger>
                     <SelectContent className="bg-white">
@@ -321,7 +494,7 @@ return (
                 </div>
 
                 <div className="flex justify-end">
-                  <div className="flex items-center gap-2 bg-blue-50 rounded-lg px-3 py-1.5 h-10">
+                  <div className="flex items-center gap-2 bg-blue-50 rounded-lg px-3 py-1.5">
                     <Label htmlFor="dirac-live" className="text-sm cursor-pointer select-none">Dirac Live</Label>
                     <Switch
                       id="dirac-live"
@@ -341,7 +514,7 @@ return (
                     <Switch
                       id="master-mute"
                       checked={mute}
-                      onCheckedChange={(checked) => handleMuteToggle()}
+                      onCheckedChange={handleMuteToggle}
                       className="data-[state=checked]:bg-blue-500 data-[state=unchecked]:bg-blue-200"
                     />
                   </div>
@@ -362,84 +535,47 @@ return (
                   <span className="w-16 text-right">{masterVolume.toFixed(1)} dB</span>
                 </div>
               </div>
+            </div>
 
-              <div className="space-y-4">
-                <div className="flex items-center justify-between mb-2">
-                  <Label>Output Gains</Label>
-                  <div className="flex items-center gap-2 bg-blue-50 rounded-lg px-3 py-1.5">
-                    <Label htmlFor="link-lr" className="text-sm cursor-pointer select-none">Link L/R</Label>
-                    <Switch
-                      id="link-lr"
-                      checked={linkLR}
-                      onCheckedChange={(checked) => {
-                        setLinkLR(checked);
-                        localStorage.setItem('minidsp-link-lr', checked.toString());
-                      }}
-                      className="data-[state=checked]:bg-blue-500 data-[state=unchecked]:bg-blue-200"
-                    />
-                  </div>
-                </div>
-                <div className="grid gap-4">
-                  <div className="space-y-2">
-                    <Label className="text-sm text-muted-foreground">Left Channel</Label>
-                    <div className="flex items-center space-x-4">
-                      <div className="flex-1">
-                        <Slider
-                          value={[outputGains[0] ?? -127]}
-                          onValueChange={([value]) => handleGainChange(0, Math.min(0, Math.max(-127, value)))}
-                          min={-127}
-                          max={0}
-                          step={0.5}
-                          className="w-full bg-blue-50"
-                          dir="ltr"
-                        />
-                      </div>
-                      <span className="w-16 text-right">{(outputGains[0] ?? -127).toFixed(1)} dB</span>
-                    </div>
-                  </div>
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Inputs</h3>
+              <div className="grid gap-4 md:grid-cols-2">
+                {lastStatus?.inputs?.map((input) => (
+                  <InputChannel
+                    key={input.index}
+                    label={input.label}
+                    gain={input.gain}
+                    mute={input.mute}
+                    onGainChange={(value) => handleInputGainChange(input.index, value)}
+                    onMuteChange={(value) => handleInputMuteChange(input.index, value)}
+                  />
+                ))}
+              </div>
+            </div>
 
-                  <div className="space-y-2">
-                    <Label className="text-sm text-muted-foreground">Right Channel</Label>
-                    <div className="flex items-center space-x-4">
-                      <div className="flex-1">
-                        <Slider
-                          value={[outputGains[1] ?? -127]}
-                          onValueChange={([value]) => handleGainChange(1, Math.min(0, Math.max(-127, value)))}
-                          min={-127}
-                          max={0}
-                          step={0.5}
-                          className="w-full bg-blue-50"
-                          dir="ltr"
-                        />
-                      </div>
-                      <span className="w-16 text-right">{(outputGains[1] ?? -127).toFixed(1)} dB</span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label className="text-sm text-muted-foreground">Subwoofer</Label>
-                    <div className="flex items-center space-x-4">
-                      <div className="flex-1">
-                        <Slider
-                          value={[outputGains[2] ?? -127]}
-                          onValueChange={([value]) => handleGainChange(2, Math.min(0, Math.max(-127, value)))}
-                          min={-127}
-                          max={0}
-                          step={0.5}
-                          className="w-full bg-blue-50"
-                          dir="ltr"
-                        />
-                      </div>
-                      <span className="w-16 text-right">{(outputGains[2] ?? -127).toFixed(1)} dB</span>
-                    </div>
-                  </div>
-                </div>
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Outputs</h3>
+              <div className="grid gap-4 md:grid-cols-2">
+                {lastStatus?.outputs?.map((output) => (
+                  <OutputChannel
+                    key={output.index}
+                    label={output.label}
+                    gain={output.gain}
+                    delay={output.delay}
+                    inverted={output.inverted}
+                    mute={output.mute}
+                    onGainChange={(value) => handleGainChange(output.index, value)}
+                    onDelayChange={(value) => handleOutputDelayChange(output.index, value)}
+                    onInvertedChange={(value) => handleOutputInvertedChange(output.index, value)}
+                    onMuteChange={(value) => handleOutputMuteChange(output.index, value)}
+                  />
+                ))}
               </div>
             </div>
           </div>
         ) : (
           <div className="text-center py-8 text-muted-foreground">
-            Please enter your MiniDSP&apos;s IP address and click Connect
+            Please enter your MiniDSP&apos;s hostname and click Connect
           </div>
         )}
         {status && (

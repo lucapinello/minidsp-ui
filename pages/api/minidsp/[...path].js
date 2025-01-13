@@ -5,31 +5,41 @@ export default async function handler(req, res) {
   const ipAddress = req.headers['minidsp-ip'];
   const isMockMode = process.env.NEXT_PUBLIC_USE_MOCK_MINIDSP === 'true';
   
-  console.log('API Request:', { path, ipAddress, isMockMode, env: process.env.NEXT_PUBLIC_USE_MOCK_MINIDSP });
+  console.log('API Request:', { 
+    path, 
+    ipAddress, 
+    isMockMode, 
+    env: process.env.NEXT_PUBLIC_USE_MOCK_MINIDSP,
+    method: req.method,
+    body: req.body,
+    headers: req.headers
+  });
   
   if (!ipAddress) {
+    console.log('No IP address provided in headers');
     res.status(400).json({ error: 'No IP address provided' });
     return;
   }
 
   try {
-    // Use mock if NEXT_PUBLIC_USE_MOCK_MINIDSP is set
-    if (isMockMode) {
-      console.log('Using mock implementation');
+    // Use mock if NEXT_PUBLIC_USE_MOCK_MINIDSP is set or if hostname is minidsp-mock
+    if (isMockMode || ipAddress.includes('minidsp-mock')) {
+      console.log('Using mock implementation for path:', path);
       const cleanPath = path.filter(segment => segment !== 'api').join('/');
       
+      let response;
       // Route to appropriate mock function
       if (cleanPath === 'devices') {
-        return res.status(200).json(mockMinidsp.getDevices());
-      }
-      if (cleanPath === 'devices/0') {
-        return res.status(200).json(mockMinidsp.getDeviceStatus());
-      }
-      if (cleanPath === 'devices/0/config' && req.method === 'POST') {
-        return res.status(200).json(mockMinidsp.updateConfig(req.body));
+        response = mockMinidsp.getDevices();
+      } else if (cleanPath === 'devices/0') {
+        response = mockMinidsp.getDeviceStatus();
+      } else if (cleanPath === 'devices/0/config' && req.method === 'POST') {
+        response = mockMinidsp.updateConfig(req.body);
+      } else {
+        throw new Error(`Unknown mock endpoint: ${cleanPath}`);
       }
       
-      throw new Error(`Unknown mock endpoint: ${cleanPath}`);
+      return res.status(200).json(response);
     }
 
     // Real minidsp-rs proxy code
