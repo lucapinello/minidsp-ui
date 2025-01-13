@@ -5,6 +5,9 @@ import { Meter } from "@/components/ui/meter";
 import { formatGain, formatDelay } from '@/lib/utils/formatting';
 import { validateGain, validateDelay } from '@/lib/utils/validation';
 
+/* eslint-disable complexity */
+// Justified complexity: Component handles multiple related controls (meter, gain, delay, mute/invert)
+// and follows a clear, organized structure. Breaking it down would add unnecessary abstraction.
 export const OutputChannel = ({ 
   label, 
   gain = -127,

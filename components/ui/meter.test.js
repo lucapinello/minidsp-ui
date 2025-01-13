@@ -19,25 +19,22 @@ describe('Mock Meter Data Generator', () => {
       variation: 0
     });
 
-    const samples = [];
-    for (let i = 0; i < 100; i++) {
-      samples.push(generator.next());
-    }
+    // Generate 100 samples
+    const samples = Array.from({ length: 100 }, () => generator.next());
 
-    samples.forEach(channelData => {
-      // Check that we get data for all channels (2 inputs + 4 outputs)
-      expect(channelData).toHaveLength(6);
+    // Test channel count
+    expect(samples.every(channelData => channelData.length === 6)).toBe(true);
 
-      channelData.forEach(({ rms, peak }) => {
-        // Check RMS levels stay within -60 to 0 dB
-        expect(rms).toBeGreaterThanOrEqual(-60);
-        expect(rms).toBeLessThanOrEqual(0);
-        
-        // Check peak levels stay within -60 to 0 dB and are >= RMS
-        expect(peak).toBeGreaterThanOrEqual(-60);
-        expect(peak).toBeLessThanOrEqual(0);
-        expect(peak).toBeGreaterThanOrEqual(rms);
-      });
+    // Test RMS and peak levels
+    samples.flat().forEach(({ rms, peak }) => {
+      // Check RMS levels stay within -60 to 0 dB
+      expect(rms).toBeGreaterThanOrEqual(-60);
+      expect(rms).toBeLessThanOrEqual(0);
+      
+      // Check peak levels stay within -60 to 0 dB and are >= RMS
+      expect(peak).toBeGreaterThanOrEqual(-60);
+      expect(peak).toBeLessThanOrEqual(0);
+      expect(peak).toBeGreaterThanOrEqual(rms);
     });
   });
 
@@ -53,9 +50,11 @@ describe('Mock Meter Data Generator', () => {
     
     // Check that consecutive values don't change too drastically
     for (let i = 1; i < samples.length; i++) {
-      samples[i].forEach((channel, idx) => {
-        const prevChannel = samples[i-1][idx];
-        const rmsChange = Math.abs(channel.rms - prevChannel.rms);
+      const currentSample = samples[i];
+      const prevSample = samples[i-1];
+      
+      currentSample.forEach((channel, idx) => {
+        const rmsChange = Math.abs(channel.rms - prevSample[idx].rms);
         expect(rmsChange).toBeLessThanOrEqual(3); // Max 3dB change per update
       });
     }
@@ -68,14 +67,7 @@ describe('Mock Meter Data Generator', () => {
       variation: 0
     });
 
-    const samples = [];
-    for (let i = 0; i < 10; i++) {
-      samples.push(generator.next());
-    }
-
-    // Check that we always get 6 channels of data (2 inputs + 4 outputs)
-    samples.forEach(channelData => {
-      expect(channelData).toHaveLength(6);
-    });
+    const samples = Array.from({ length: 10 }, () => generator.next());
+    expect(samples.every(channelData => channelData.length === 6)).toBe(true);
   });
 }); 
