@@ -2,6 +2,8 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Meter } from "@/components/ui/meter";
+import { formatGain, formatDelay } from '@/lib/utils/formatting';
+import { validateGain, validateDelay } from '@/lib/utils/validation';
 
 export const OutputChannel = ({ 
   label, 
@@ -39,14 +41,14 @@ export const OutputChannel = ({
             id={`${label}-gain`}
             data-testid={`output-${label}-gain`}
             value={[gain ?? -127]}
-            onValueChange={([value]) => onGainChange(Math.min(0, Math.max(-127, value)))}
+            onValueChange={([value]) => onGainChange(validateGain(value))}
             min={-127}
             max={0}
             step={0.5}
             dir="ltr"
           />
           <div className="text-right text-sm text-muted-foreground">
-            {(gain ?? -127).toFixed(1)} dB
+            {formatGain(gain ?? -127)}
           </div>
         </div>
 
@@ -57,14 +59,14 @@ export const OutputChannel = ({
           <Slider
             id={`${label}-delay`}
             value={[delay ?? 0]}
-            onValueChange={([value]) => onDelayChange(Math.min(80, Math.max(0, value)))}
+            onValueChange={([value]) => onDelayChange(validateDelay(value))}
             min={0}
             max={80}
             step={0.02}
             dir="ltr"
           />
           <div className="text-right text-sm text-muted-foreground">
-            {(delay ?? 0).toFixed(2)} ms
+            {formatDelay(delay ?? 0)}
           </div>
         </div>
 
