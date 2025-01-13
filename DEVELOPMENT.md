@@ -139,6 +139,27 @@ This will:
 - Build and push Docker images with appropriate tags
 - Create a GitHub release with auto-generated notes
 
+## Configuration System
+
+The project uses a custom configuration system with a Swift-like Optional pattern. Configuration values are looked up in the following order:
+
+1. Local storage (if in browser and key provided)
+2. Environment variables (NEXT_PUBLIC_*)
+3. config.json override file
+4. config.default.json
+5. Returns undefined (equivalent to Optional.none in Swift)
+
+Note: The system uses `undefined` to represent missing values (similar to `Optional.none` in Swift), allowing for safe optional chaining in TypeScript/JavaScript. This provides a clean way to handle potentially missing configuration values without additional wrapper types.
+
+Example usage:
+```javascript
+// Safe access to potentially missing config
+const apiUrl = getConfig('minidsp.api_url')?.toString();
+
+// With localStorage fallback
+const savedUrl = getConfig('minidsp.api_url', 'minidsp-ip');
+```
+
 ## Project Structure
 
 (Add information about the project structure, key files, etc.) 

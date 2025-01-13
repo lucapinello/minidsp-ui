@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Volume2 } from 'lucide-react';
 import { cn } from "@/lib/utils";
+import { getConfig } from '@/lib/config';
 
 export default function MiniDSPController() {
   const [masterVolume, setMasterVolume] = useState(-10);  // Default to -10 dB
@@ -44,7 +45,9 @@ export default function MiniDSPController() {
       2: -20   // Subwoofer - default to -20 dB
     };
   });
-  const [ipAddress, setIpAddress] = useState('192.168.0.67:5380');
+  const [ipAddress, setIpAddress] = useState(() => 
+    getConfig('minidsp.api_url', 'minidsp-ip') || '192.168.0.67:5380'
+  );
 
 useEffect(() => {
     const savedIp = window.localStorage.getItem('minidsp-ip');
