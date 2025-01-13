@@ -30,6 +30,7 @@ test.describe('Mute and Invert functionality', () => {
 
     // Click mute button on first input
     await page.getByTestId('input-Input 1-mute').click();
+    await page.waitForTimeout(100); // Give state time to update
 
     // Verify mute state changed
     const updatedInput1Status = await page.evaluate(() => {
@@ -40,6 +41,8 @@ test.describe('Mute and Invert functionality', () => {
 
     // Click unmute and verify state changed back
     await page.getByTestId('input-Input 1-mute').click();
+    await page.waitForTimeout(100); // Give state time to update
+    
     const finalInput1Status = await page.evaluate(() => {
       const client = window.mockMinidspClient;
       return client.getStatus().then(state => state.inputs[0]);
