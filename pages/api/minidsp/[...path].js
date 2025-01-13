@@ -1,3 +1,5 @@
+import { mockMinidsp } from '@/lib/mock-minidsp';
+
 export default async function handler(req, res) {
   const { path } = req.query;
   const ipAddress = req.headers['minidsp-ip'];
@@ -8,7 +10,25 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Remove any '/api/' prefix from the path if present
+    // Use mock if NEXT_PUBLIC_USE_MOCK_MINIDSP is set
+    if (process.env.NEXT_PUBLIC_USE_MOCK_MINIDSP === 'true') {
+      const cleanPath = path.filter(segment => segment !== 'api').join('/');
+      
+      // Route to appropriate mock function
+      if (cleanPath === 'devices') {
+        return res.status(200).json(mockMinidsp.getDevices());
+      }
+      if (cleanPath === 'devices/0') {
+        return res.status(200).json(mockMinidsp.getDeviceStatus());
+      }
+      if (cleanPath === 'devices/0/config' && req.method === 'POST') {
+        return res.status(200).json(mockMinidsp.updateConfig(req.body));
+      }
+      
+      throw new Error(`Unknown mock endpoint: ${cleanPath}`);
+    }
+
+    // Real minidsp-rs proxy code
     const cleanPath = path.filter(segment => segment !== 'api').join('/');
     const url = `http://${ipAddress}/${cleanPath}`;
     
