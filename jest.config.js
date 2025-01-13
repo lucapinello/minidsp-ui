@@ -5,7 +5,7 @@ module.exports = {
     '<rootDir>/jest.setup.js'
   ],
   testMatch: [
-    '**/__tests__/**/*.test.js'
+    '**/*.test.js'
   ],
   transform: {
     '^.+\\.(js|jsx|ts|tsx)$': ['babel-jest', { presets: ['next/babel'] }],

@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/tailwind-utils";
 import { useEffect, useRef, useState } from "react";
 
 const PEAK_HOLD_TIME = 2000; // Hold peak for 2 seconds
