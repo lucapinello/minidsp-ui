@@ -10,8 +10,10 @@ export default function Home() {
         <meta name="description" content="A simple web interface to control the MiniDSP device." />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
-      <main className="flex min-h-screen flex-col items-center justify-between p-24">
-        <MiniDSPController />
+      <main className="min-h-screen p-4 md:p-8 lg:p-12">
+        <div className="max-w-[2000px] mx-auto">
+          <MiniDSPController />
+        </div>
       </main>
     </>
   );

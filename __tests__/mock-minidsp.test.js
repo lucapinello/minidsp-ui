@@ -1,4 +1,5 @@
 import { mockMinidsp } from '@/lib/mock-minidsp';
+import { MockMiniDSPClient } from '@/lib/minidsp-api';
 
 describe('Mock MiniDSP', () => {
   it('should list available devices', () => {
@@ -94,4 +95,23 @@ describe('Mock MiniDSP', () => {
     expect(status.outputs[0].inverted).toBe(true);
     expect(status.outputs[0].gain).toBe(-20);
   });
+});
+
+describe('MockMiniDSPClient', () => {
+  let client;
+
+  beforeEach(() => {
+    client = new MockMiniDSPClient('mock');
+  });
+
+  it('can be instantiated and returns meter data', async () => {
+    const meterData = await client.getMeterLevels();
+    expect(meterData).toHaveLength(6); // 2 inputs + 4 outputs
+    meterData.forEach(channel => {
+      expect(channel).toHaveProperty('rms');
+      expect(channel).toHaveProperty('peak');
+    });
+  });
+
+  // ... existing tests ...
 }); 

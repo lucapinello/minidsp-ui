@@ -160,6 +160,11 @@ const apiUrl = getConfig('minidsp.api_url')?.toString();
 const savedUrl = getConfig('minidsp.api_url', 'minidsp-ip');
 ```
 
-## Project Structure
+# Coding Guidelines
 
-(Add information about the project structure, key files, etc.) 
+(For LLM's as well as humans)
+
+- Refactor magic numbers to constants
+- Add comments to explain why behind the code when it's not obvious
+- Add type annotations
+- Use reasonable ESLint rules to enforce code style

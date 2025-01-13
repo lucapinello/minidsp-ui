@@ -22,8 +22,8 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Use mock if NEXT_PUBLIC_USE_MOCK_MINIDSP is set or if hostname is minidsp-mock
-    if (isMockMode || ipAddress.includes('minidsp-mock')) {
+    // Use mock if NEXT_PUBLIC_USE_MOCK_MINIDSP is set
+    if (isMockMode) {
       console.log('Using mock implementation for path:', path);
       const cleanPath = path.filter(segment => segment !== 'api').join('/');
       

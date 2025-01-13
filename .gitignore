@@ -48,3 +48,6 @@ docker-repo.config
 
 # Ignore config.json (user overrides)
 config.json
+
+# Test results
+test-results/

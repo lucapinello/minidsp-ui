@@ -23,9 +23,11 @@ export function MiniDSPController() {
     diracEnabled,
     currentPreset,
     outputGains,
+    meterLevels,
     setHostname,
     setLinkLR,
     connect,
+    disconnect,
     handleVolumeChange,
     handleMuteToggle,
     handleInputChange,
@@ -39,13 +41,25 @@ export function MiniDSPController() {
     handleOutputMuteChange
   } = useMinidsp();
 
+  const handleConnect = async () => {
+    if (status === 'connected') {
+      disconnect();
+    } else {
+      try {
+        await connect();
+      } catch (error) {
+        console.error('Connection error:', error);
+      }
+    }
+  };
+
   return (
     <Card>
       <CardContent className="space-y-4">
         <ConnectionHeader 
           hostname={hostname}
           onHostnameChange={setHostname}
-          onConnect={connect}
+          onConnect={handleConnect}
           isMockMode={isMockMode}
           status={status}
         />
@@ -68,29 +82,35 @@ export function MiniDSPController() {
               onMuteToggle={handleMuteToggle}
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {lastStatus?.inputs?.map((input, index) => (
+            <div className="grid grid-cols-1 auto-rows-fr gap-4 mb-8" style={{ 
+              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))'
+            }}>
+              {lastStatus?.inputs.map((input, index) => (
                 <InputChannel
                   key={index}
-                  label={input.label || `Input ${index + 1}`}
+                  label={input.label}
                   gain={input.gain}
                   mute={input.mute}
+                  meterLevels={meterLevels[index]}
                   onGainChange={(value) => handleInputGainChange(index, value)}
                   onMuteChange={(value) => handleInputMuteChange(index, value)}
                 />
               ))}
               </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {lastStatus?.outputs?.map((output, index) => (
+            <div className="grid grid-cols-1 auto-rows-fr gap-4" style={{ 
+              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))'
+            }}>
+              {lastStatus?.outputs.map((output, index) => (
                 <OutputChannel
                   key={index}
-                  label={output.label || `Output ${index + 1}`}
+                  label={output.label}
                   gain={output.gain}
                   delay={output.delay}
                   inverted={output.inverted}
                   mute={output.mute}
-                  onGainChange={(value) => handleGainChange(index, value)}
+                  meterLevels={meterLevels[index + lastStatus.inputs.length]}
+                  onGainChange={(value) => handleOutputGainChange(index, value)}
                   onDelayChange={(value) => handleOutputDelayChange(index, value)}
                   onInvertedChange={(value) => handleOutputInvertedChange(index, value)}
                   onMuteChange={(value) => handleOutputMuteChange(index, value)}

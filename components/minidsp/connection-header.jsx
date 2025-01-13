@@ -5,36 +5,43 @@ import { Label } from '@/components/ui/label';
 export const ConnectionHeader = ({ 
   hostname, 
   onHostnameChange, 
-  onConnect, 
-  isMockMode, 
+  onConnect,
+  isMockMode,
   status 
 }) => {
+  const handleConnectionClick = () => {
+    if (status === 'connected') {
+      onConnect();
+    } else {
+      onConnect();
+    }
+  };
+
   return (
-    <div className="mt-4">
-      <Label htmlFor="minidsp-host">MiniDSP Host</Label>
-      <div className="flex gap-2 mt-1">
-        <Input
-          id="minidsp-host"
-          type="text"
-          value={hostname}
-          onChange={(e) => onHostnameChange(e.target.value)}
-          placeholder={isMockMode ? "Development mock mode - any value works" : "Enter hostname or IP (e.g., minidsp.local:5380)"}
-          className="flex-1"
-        />
-        <Button onClick={onConnect} size="sm">
-          Connect
+    <div className="w-[400px] mx-auto mb-8">
+      <div className="space-y-4 p-4 border rounded-lg">
+        <div className="space-y-2">
+          <Label htmlFor="hostname">Hostname</Label>
+          <Input
+            id="hostname"
+            data-testid="hostname-input"
+            value={hostname}
+            onChange={(e) => onHostnameChange(e.target.value)}
+            placeholder={isMockMode ? "Using mock implementation" : "Enter hostname or IP"}
+          />
+        </div>
+        <Button 
+          className="w-full" 
+          onClick={handleConnectionClick}
+          variant={status === 'connected' ? 'destructive' : 'default'}
+          data-testid="connect-button"
+        >
+          {status === 'connected' ? 'Disconnect' : 'Connect'}
         </Button>
+        {status === 'error' && (
+          <p className="text-sm text-red-500">Failed to connect. Please check the hostname and try again.</p>
+        )}
       </div>
-      {isMockMode && (
-        <div className="text-sm text-muted-foreground mt-2">
-          Running in development mock mode. Any hostname will work - just click Connect.
-        </div>
-      )}
-      {status && (
-        <div className="text-sm text-red-500 mt-4">
-          {status}
-        </div>
-      )}
     </div>
   );
 }; 

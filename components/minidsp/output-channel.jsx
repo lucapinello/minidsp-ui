@@ -1,67 +1,86 @@
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
+import { Meter } from "@/components/ui/meter";
 
 export const OutputChannel = ({ 
   label, 
-  gain, 
-  delay, 
-  inverted, 
-  mute, 
-  onGainChange, 
-  onDelayChange, 
-  onInvertedChange, 
-  onMuteChange 
+  gain = -127,
+  delay = 0,
+  inverted = false,
+  mute = false,
+  meterLevels = { rms: -60, peak: -60 },
+  onGainChange,
+  onDelayChange,
+  onInvertedChange,
+  onMuteChange,
+  testId
 }) => {
   return (
-    <div className="space-y-2 p-4 border rounded-lg">
-      <div className="flex justify-between items-center">
-        <Label className="text-lg font-semibold">{label}</Label>
-        <div className="space-x-2">
-          <Button 
-            variant={inverted ? "default" : "secondary"}
-            size="sm"
-            onClick={() => onInvertedChange(!inverted)}
-          >
-            {inverted ? "Inverted" : "Invert"}
-          </Button>
-          <Button 
-            variant={mute ? "destructive" : "secondary"}
-            size="sm"
-            onClick={() => onMuteChange(!mute)}
-          >
-            {mute ? "Muted" : "Mute"}
-          </Button>
-        </div>
+    <div className="border rounded-lg p-4 flex flex-col h-[400px]">
+      <div className="text-base font-medium mb-4">{label}</div>
+      
+      {/* Meter section */}
+      <div className="mb-8 h-[120px]">
+        <Meter
+          testId={`output-${label}-meter`}
+          rmsLevel={meterLevels?.rms ?? -60}
+          peakLevel={meterLevels?.peak ?? -60}
+        />
       </div>
-      <div className="space-y-4">
-        <div>
-          <div className="flex justify-between mb-2">
-            <Label className="text-sm text-muted-foreground">Gain</Label>
-            <span className="text-sm">{gain.toFixed(1)} dB</span>
-          </div>
+
+      {/* Controls section */}
+      <div className="space-y-6 flex-1">
+        <div className="space-y-2">
+          <Label htmlFor={`${label}-gain`} className="text-sm text-muted-foreground">
+            Gain
+          </Label>
           <Slider
-            value={[gain]}
+            id={`${label}-gain`}
+            data-testid={`output-${label}-gain`}
+            value={[gain ?? -127]}
             onValueChange={([value]) => onGainChange(Math.min(0, Math.max(-127, value)))}
             min={-127}
             max={0}
             step={0.5}
-            className="w-full bg-blue-50"
+            dir="ltr"
           />
-        </div>
-        <div>
-          <div className="flex justify-between mb-2">
-            <Label className="text-sm text-muted-foreground">Delay</Label>
-            <span className="text-sm">{delay.toFixed(1)} ms</span>
+          <div className="text-right text-sm text-muted-foreground">
+            {(gain ?? -127).toFixed(1)} dB
           </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor={`${label}-delay`} className="text-sm text-muted-foreground">
+            Delay
+          </Label>
           <Slider
-            value={[delay]}
-            onValueChange={([value]) => onDelayChange(value)}
+            id={`${label}-delay`}
+            value={[delay ?? 0]}
+            onValueChange={([value]) => onDelayChange(Math.min(80, Math.max(0, value)))}
             min={0}
-            max={100}
-            step={0.1}
-            className="w-full bg-blue-50"
+            max={80}
+            step={0.02}
+            dir="ltr"
           />
+          <div className="text-right text-sm text-muted-foreground">
+            {(delay ?? 0).toFixed(2)} ms
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2">
+          <Button
+            variant="secondary"
+            onClick={() => onMuteChange(!mute)}
+          >
+            {mute ? "Unmute" : "Mute"}
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={() => onInvertedChange(!inverted)}
+          >
+            {inverted ? "Normal" : "Invert"}
+          </Button>
         </div>
       </div>
     </div>
