@@ -111,6 +111,16 @@ docker-compose up --build
 
 ## Continuous Integration & Deployment
 
+### GitHub Actions Setup
+
+To enable automatic Docker image builds and pushes via GitHub Actions, you need to configure the following secrets in your GitHub repository:
+
+1. Go to your repository's Settings > Secrets and Variables > Actions
+2. Add the following secrets:
+   - `DOCKERHUB_USERNAME`: Your Docker Hub username
+   - `DOCKERHUB_TOKEN`: Your Docker Hub access token (not your password)
+      - To get a token, go to [Docker Hub Account Settings](https://hub.docker.com/settings/security) and create a new access token
+
 ### Automated Builds
 
 The project uses GitHub Actions for CI/CD:
