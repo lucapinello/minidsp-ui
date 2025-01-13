@@ -1,5 +1,16 @@
 "use client"
 
+/**
+ * Main controller component for the MiniDSP interface.
+ * 
+ * Provides:
+ * 1. Connection management and status display
+ * 2. Master volume and mute controls
+ * 3. Input channel controls (gain, mute)
+ * 4. Output channel controls (gain, delay, invert, mute)
+ * 5. Real-time meter visualization
+ */
+
 import React from 'react';
 import { useMinidsp } from '@/lib/hooks/use-minidsp';
 import { ConnectionHeader } from '@/components/minidsp/connection';

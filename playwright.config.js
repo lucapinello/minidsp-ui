@@ -1,5 +1,14 @@
 import { defineConfig } from '@playwright/test';
 
+/**
+ * Playwright configuration for end-to-end tests.
+ * 
+ * Key features:
+ * - Runs tests in parallel for faster execution
+ * - Uses mock MiniDSP implementation
+ * - 5 second timeouts for faster failure detection
+ * - CI-specific settings for reliability
+ */
 export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: true,

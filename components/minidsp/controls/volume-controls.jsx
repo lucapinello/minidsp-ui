@@ -2,7 +2,7 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Volume2 } from 'lucide-react';
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/tailwind-utils";
 
 export const VolumeControls = ({
   masterVolume,

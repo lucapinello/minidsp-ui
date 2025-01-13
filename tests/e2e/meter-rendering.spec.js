@@ -1,5 +1,13 @@
 import { test, expect } from './test-utils';
 
+/**
+ * Tests for meter visualization functionality.
+ * 
+ * Verifies that:
+ * 1. Meters appear after connecting to device
+ * 2. Meters respond to audio level data
+ * 3. RMS bars update with non-zero values
+ */
 test('meters are visible and respond to data', async ({ page }) => {
   const connectButton = page.locator('[data-testid="connect-button"]');
   await connectButton.click();

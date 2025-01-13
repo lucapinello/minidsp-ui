@@ -1,6 +1,6 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/tailwind-utils"
 
 const buttonVariants = {
   default: "bg-primary text-primary-foreground hover:bg-primary/90",

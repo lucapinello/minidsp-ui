@@ -1,5 +1,15 @@
 import { createMiniDSPClient } from '@/lib/minidsp-api';
 
+/**
+ * Server-Sent Events (SSE) endpoint for real-time meter data.
+ * 
+ * Provides a streaming connection that sends meter level updates for:
+ * - Input channel RMS and peak levels
+ * - Output channel RMS and peak levels
+ * 
+ * In mock mode, generates simulated meter data.
+ * In production, forwards real meter data from the MiniDSP device.
+ */
 export default async function handler(req, res) {
   const hostname = req.query.hostname;
   const isMockMode = process.env.NEXT_PUBLIC_USE_MOCK_MINIDSP === 'true';

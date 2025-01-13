@@ -1,5 +1,13 @@
 import { test, expect } from './test-utils';
 
+/**
+ * Tests for channel visibility after connection.
+ * 
+ * Verifies that:
+ * 1. Input channels (1-2) appear after connecting
+ * 2. Output channels (1-4) appear after connecting
+ * 3. All channel controls are visible and accessible
+ */
 test.describe('Channel visibility', () => {
   test('shows input channels after connecting', async ({ page }) => {
     const connectButton = page.locator('[data-testid="connect-button"]');

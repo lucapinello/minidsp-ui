@@ -1,5 +1,14 @@
 import { test, expect } from './test-utils';
 
+/**
+ * Basic UI tests that verify core functionality.
+ * 
+ * Tests:
+ * 1. Error-free page load and runtime behavior
+ * 2. Connection form elements and their states
+ * 3. Mock mode indicators and placeholders
+ * 4. Connection and disconnection flows
+ */
 test.describe('Basic UI elements', () => {
   test('shows no runtime errors', async ({ page }) => {
     // The test-utils already check for error overlays on page load

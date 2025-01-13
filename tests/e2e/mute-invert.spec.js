@@ -1,5 +1,14 @@
 import { test, expect } from './test-utils';
 
+/**
+ * End-to-end tests for mute and invert functionality.
+ * Verifies that:
+ * 1. Input channels can be muted/unmuted
+ * 2. Output channels can be muted/unmuted
+ * 3. Output channels can be inverted/normalized
+ * 
+ * Each test verifies both UI interaction and state changes in the mock client.
+ */
 test.describe('Mute and Invert functionality', () => {
   test.beforeEach(async ({ page }) => {
     // Connect to mock device

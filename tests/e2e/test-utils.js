@@ -1,5 +1,14 @@
 import { test as base, expect } from '@playwright/test';
 
+/**
+ * Test utilities for end-to-end tests.
+ * 
+ * Provides:
+ * 1. Error detection infrastructure that monitors console errors, runtime errors, and Next.js error overlays
+ * 2. Helper functions for setting up mock MiniDSP devices
+ * 3. Extended test fixture that automatically checks for errors after each action
+ */
+
 async function checkForRuntimeErrors(page) {
   // Check for Next.js error overlay
   const errorOverlay = page.locator('[data-nextjs-dialog-left-right]');
