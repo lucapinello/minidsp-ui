@@ -3,8 +3,7 @@ set -x
 set -e
 
 # Load repository from config or use default
-DEFAULT_REPO="lucapinello"
-DOCKER_REPO=${DEFAULT_REPO}
+DOCKER_REPO=$(jq -r '.docker.repository' config.default.json)
 if [ -f docker-repo.config ]; then
     DOCKER_REPO=$(cat docker-repo.config)
 fi

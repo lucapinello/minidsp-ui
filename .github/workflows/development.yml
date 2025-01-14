@@ -1,0 +1,32 @@
+name: Development Build
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  verify:
+    uses: ./.github/workflows/verify.yml
+
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      repository: ${{ steps.config.outputs.repository }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read config
+        id: config
+        run: |
+          REPO=$(jq -r '.docker.repository' config.default.json)
+          echo "repository=${REPO}" >> $GITHUB_OUTPUT
+
+  docker:
+    needs: [verify, prepare]
+    uses: ./.github/workflows/docker-build.yml
+    with:
+      tags: |
+        ${{ needs.prepare.outputs.repository }}/minidsp-ui:dev
+        ${{ needs.prepare.outputs.repository }}/minidsp-ui:dev-${{ github.sha }}
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }} 
